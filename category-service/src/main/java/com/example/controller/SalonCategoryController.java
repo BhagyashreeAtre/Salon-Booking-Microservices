@@ -34,7 +34,7 @@ public class SalonCategoryController {
 
         return ResponseEntity.ok("Category deleted successfully");
     }
-    @GetMapping("/salom/{salonId}/category/{id}")
+    @GetMapping("/salon/{salonId}/category/{id}")
     public ResponseEntity<Category> getCategoriesByIdAndSalon(
             @PathVariable Long id,
             @PathVariable Long salonId

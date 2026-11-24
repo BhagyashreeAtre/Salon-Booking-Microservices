@@ -1,4 +1,4 @@
-﻿# Salon Booking Microservices
+# Salon Booking Microservices
 
 A microservices-based salon booking application developed using Java and Spring Boot. The project is designed to manage salon operations, service offerings, customer bookings, payments, and user authentication through independently organized services.
 
@@ -302,3 +302,118 @@ These results cover the reported service-level unit tests.
 Java | Spring Boot | Microservices | Spring Cloud
 
 [GitHub Profile](https://github.com/BhagyashreeAtre)
+
+## API Reference
+
+The following endpoints are derived from the Spring MVC controller mappings in the respective services. They describe the implemented controller mappings; they have not all been independently verified through end-to-end API testing.
+
+### 1. User Service
+
+Base path: `/api/users`
+Authentication endpoints use `/auth`.
+
+| Method | Endpoint | Description | Request |
+|---|---|---|---|
+| POST | `/auth/signup` | Register a user | `SignupDTO` body |
+| POST | `/auth/login` | Authenticate a user | `LoginDTO` body |
+| GET | `/auth/access-token/refresh-token/{refreshToken}` | Generate access token from refresh token | Path variable |
+| POST | `/api/users` | Create user | `User` body; ADMIN |
+| GET | `/api/users/profile` | Get authenticated user's profile | JWT principal |
+| GET | `/api/users` | List users | ADMIN |
+| GET | `/api/users/{id}` | Get user by ID | ADMIN |
+| PUT | `/api/users/{id}` | Update user | `User` body; ADMIN |
+| DELETE | `/api/users/{id}` | Delete user | ADMIN |
+
+### 2. Salon Service
+
+Base path: `/api/salons`
+
+| Method | Endpoint | Description | Request |
+|---|---|---|---|
+| POST | `/api/salons` | Create salon | `SalonDTO` body; Authorization header |
+| PATCH | `/api/salons/{salonId}` | Update salon | Path variable, `SalonDTO` body; Authorization header |
+| GET | `/api/salons` | List salons | — |
+| GET | `/api/salons/{salonId}` | Get salon by ID | Path variable |
+| GET | `/api/salons/search?city={city}` | Search salons by city | `city` query parameter |
+| GET | `/api/salons/owner` | Get salon belonging to authenticated owner | Authorization header |
+
+### 3. Category Service
+
+Base path: `/api/categories`
+
+| Method | Endpoint | Description | Request |
+|---|---|---|---|
+| GET | `/api/categories/salon/{id}` | Get categories for a salon | Salon ID |
+| GET | `/api/categories/{id}` | Get category by ID | Category ID |
+| POST | `/api/categories/salon-owner` | Create category for salon owner | `Category` body; Authorization header |
+| DELETE | `/api/categories/salon-owner/{id}` | Delete category | Category ID; Authorization header |
+| GET | `/api/categories/salon-owner/salon/{salonId}/category/{id}` | Find category by category ID and salon ID | Path variables |
+
+**Note:** The category lookup endpoint uses both the salon ID and category ID as path variables.
+
+### 4. Service Offering
+
+Base path: `/api/service_offering`
+
+| Method | Endpoint | Description | Request |
+|---|---|---|---|
+| GET | `/api/service_offering/salon/{salonId}` | Get services offered by a salon | Optional `categoryId` query parameter |
+| GET | `/api/service_offering/{id}` | Get service offering by ID | Path variable |
+| GET | `/api/service_offering/list/{ids}` | Get multiple service offerings by IDs | Set of IDs in path |
+| POST | `/api/service_offering/salon_owner` | Create service offering | `ServiceDTO` body; Authorization header |
+| PUT | `/api/service_offering/salon_owner/{id}` | Update service offering | ID path variable, `ServiceOffering` body |
+
+### 5. Booking Service
+
+Base path: `/api/bookings`
+
+| Method | Endpoint | Description | Request |
+|---|---|---|---|
+| POST | `/api/bookings` | Create booking | `salonId`, `paymentMethod` query parameters; `BookingRequest` body; Authorization header |
+| GET | `/api/bookings/customer` | Get bookings for authenticated customer | Authorization header |
+| GET | `/api/bookings/salon` | Get bookings for authenticated salon owner | Authorization header |
+| GET | `/api/bookings/{bookingId}` | Get booking by ID | Booking ID |
+| PUT | `/api/bookings/{bookingId}/status` | Update booking status | Booking ID; `status` query parameter |
+| GET | `/api/bookings/slots/salon/{salonId}/date/{date}` | Get booked slots for a salon and date | Salon ID and date |
+| GET | `/api/bookings/report` | Get salon booking report | Authorization header |
+
+### 6. Payment Service
+
+Base path: `/api/payments`
+
+| Method | Endpoint | Description | Request |
+|---|---|---|---|
+| POST | `/api/payments/create` | Create payment link | `BookingDTO` body; `paymentMethod` query parameter; Authorization header |
+| GET | `/api/payments/{paymentOrderId}` | Get payment order | Payment order ID |
+| PATCH | `/api/payments/proceed` | Proceed with payment confirmation | `paymentId` and `paymentLinkId` query parameters |
+
+### 7. Notification Service
+
+Base path: `/api/notifications`
+
+| Method | Endpoint | Description | Request |
+|---|---|---|---|
+| POST | `/api/notifications` | Create notification | `Notification` body |
+| GET | `/api/notifications/user/{userId}` | Get notifications for a user | User ID |
+| PUT | `/api/notifications/{notificationId}/read` | Mark notification as read | Notification ID |
+| GET | `/api/notifications/salon-owner/salon/{salonId}` | Retrieve notifications using the supplied salon ID; verify the underlying user-ID lookup semantics | Salon ID |
+
+### 8. Review Service
+
+Base path: `/api/reviews`
+
+| Method | Endpoint | Description | Request |
+|---|---|---|---|
+| POST | `/api/reviews/salon/{salonId}` | Create review for a salon | `ReviewRequest` body; Authorization header |
+| GET | `/api/reviews/salon/{salonId}` | Get reviews for a salon | Salon ID; Authorization header |
+| PUT | `/api/reviews/{reviewId}` | Update review | Review ID, `ReviewRequest` body; Authorization header |
+| DELETE | `/api/reviews/{reviewId}` | Delete review | Review ID; Authorization header |
+
+### API Documentation Notes
+
+- Request DTOs and entity types are listed as declared by the controller methods.
+- `Authorization` headers are explicitly required by the controller signatures where indicated.
+- The User Service uses `@PreAuthorize("hasRole('ADMIN')")` on the documented administrative endpoints.
+- Other authentication and authorization rules may also be enforced through Spring Security configuration.
+- Query parameters and path variables should be supplied using the types expected by the corresponding controller methods.
+- These endpoint mappings do not by themselves establish that every API has passed runtime or integration testing.
