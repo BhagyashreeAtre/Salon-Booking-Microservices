@@ -190,30 +190,39 @@ Application configuration uses environment variables for database, messaging, pa
 
 Configure the required environment variables before starting the services.
 
-Examples of configuration variable names:
+The following environment variables are referenced in the project configuration:
 
-```text
-DB_USERNAME
-DB_PASSWORD
-PAYMENT_DB_URL
+**Database**
+- `DB_USERNAME`
+- `DB_PASSWORD`
+- `USER_DB_URL`
+- `BOOKING_DB_URL`
+- `CATEGORY_DB_URL`
+- `PAYMENT_DB_URL`
+- `SALON_DB_URL`
+- `SERVICE_DB_URL`
+- `NOTIFICATION_DB_URL`
+- `REVIEW_DB_URL`
 
-RABBITMQ_HOST
-RABBITMQ_PORT
-RABBITMQ_USERNAME
-RABBITMQ_PASSWORD
+**Service discovery and authentication**
+- `EUREKA_URL`
+- `KEYCLOAK_ISSUER_URI`
 
-KEYCLOAK_ISSUER_URI
-KEYCLOAK_BASE_URL
-KEYCLOAK_REALM
-KEYCLOAK_CLIENT_ID
+**RabbitMQ**
+- `RABBITMQ_HOST`
+- `RABBITMQ_PORT`
+- `RABBITMQ_USERNAME`
+- `RABBITMQ_PASSWORD`
 
-RAZORPAY_API_KEY
-RAZORPAY_API_SECRET
-STRIPE_API_KEY
-```
+**Payment Service**
+- `RAZORPAY_API_KEY`
+- `RAZORPAY_API_SECRET`
+- `STRIPE_API_KEY`
+
+**Docker Compose**
+- `MYSQL_ROOT_PASSWORD`
 
 Use your own local values. Never commit passwords, API keys, client secrets, or production credentials to GitHub.
-
 Refer to the individual service application.yml files for the exact configuration required by each service.
 
 ### Start Docker Compose Services
@@ -255,7 +264,7 @@ The current Docker Compose configuration defines the following:
 - Eureka Server
 - API Gateway
 - User, Booking, Category, Payment, Salon, and Service Offering services
-- Five MySQL database containers
+- Six MySQL database containers
 
 Keycloak and RabbitMQ are not defined as services in this Compose configuration. They must be configured and made reachable separately.
 
@@ -332,7 +341,7 @@ Base path: `/api/salons`
 |---|---|---|---|
 | POST | `/api/salons` | Create salon | `SalonDTO` body; Authorization header |
 | PATCH | `/api/salons/{salonId}` | Update salon | Path variable, `SalonDTO` body; Authorization header |
-| GET | `/api/salons` | List salons | — |
+| GET | `/api/salons` | List salons | â€” |
 | GET | `/api/salons/{salonId}` | Get salon by ID | Path variable |
 | GET | `/api/salons/search?city={city}` | Search salons by city | `city` query parameter |
 | GET | `/api/salons/owner` | Get salon belonging to authenticated owner | Authorization header |
