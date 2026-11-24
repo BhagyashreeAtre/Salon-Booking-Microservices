@@ -20,27 +20,88 @@ A microservices-based salon booking application developed using Java and Spring 
 The application follows a microservices architecture in which business capabilities are separated into individual services.
 
 ```mermaid
-flowchart TD
-    Client[Client / API Consumer] --> Gateway[API Gateway :5000]
-    Gateway --> Eureka[Eureka Server :8070]
+flowchart TB
+    Client[Client / API Consumer]
+    Gateway[API Gateway :5000]
+    Eureka[Eureka Server :8070]
+    Keycloak[Keycloak - External Identity Provider]
+    RabbitMQ[RabbitMQ - External Message Broker]
 
-    Eureka --> User[User Service :5001]
-    Eureka --> Booking[Booking Service :5005]
-    Eureka --> Category[Category Service :5006]
-    Eureka --> Payment[Payment Service :5007]
-    Eureka --> Salon[Salon Service :5008]
-    Eureka --> Offering[Service Offering :5009]
+    Client --> Gateway
+    Gateway -. Service Discovery .-> Eureka
 
-    User --> UserDB[(User MySQL)]
-    Booking --> BookingDB[(Booking MySQL)]
-    Category --> CategoryDB[(Category MySQL)]
-    Payment --> PaymentDB[(Payment MySQL)]
-    Salon --> SalonDB[(Salon MySQL)]
-    Offering --> ServiceDB[(Service Offering MySQL)]
+    subgraph Business["Business Microservices"]
+        User[User Service :5001]
+        Booking[Booking Service :5005]
+        Category[Category Service :5006]
+        Payment[Payment Service :5007]
+        Salon[Salon Service :5008]
+        Offering[Service Offering :5009]
+        Notification[Notifications Service]
+        Review[Review Service]
+    end
 
-    User -. JWT authentication .-> Keycloak[Keycloak]
-    Booking -. Messaging .-> RabbitMQ[RabbitMQ]
-    RabbitMQ -. Events .-> Notifications[Notifications Service]
+    Eureka -. Registration / Discovery .-> User
+    Eureka -. Registration / Discovery .-> Booking
+    Eureka -. Registration / Discovery .-> Category
+    Eureka -. Registration / Discovery .-> Payment
+    Eureka -. Registration / Discovery .-> Salon
+    Eureka -. Registration / Discovery .-> Offering
+
+    Gateway --> User
+    Gateway --> Booking
+    Gateway --> Category
+    Gateway --> Payment
+    Gateway --> Salon
+    Gateway --> Offering
+
+    Booking -. Feign .-> Category
+    Booking -. Feign .-> Payment
+    Booking -. Feign .-> Salon
+    Booking -. Feign .-> Offering
+    Booking -. Feign .-> User
+
+    Category -. Feign .-> Salon
+    Category -. Feign .-> User
+
+    Payment -. Feign .-> Category
+    Payment -. Feign .-> Salon
+    Payment -. Feign .-> Offering
+    Payment -. Feign .-> User
+
+    Salon -. Feign .-> User
+    Offering -. Feign .-> Category
+    Offering -. Feign .-> Salon
+    Offering -. Feign .-> User
+    Notification -. Feign .-> Booking
+    Review -. Feign .-> Salon
+    Review -. Feign .-> User
+
+    Payment -->|BookingEventProducer| BookingQueue[booking-queue]
+    BookingQueue -->|BookingEventConsumer| Booking
+
+    Payment -->|NotificationEventProducer| NotificationQueue[notification-queue]
+    NotificationQueue -->|NotificationEventConsumer| Notification
+
+    Keycloak -. JWT / Issuer .-> User
+    Keycloak -. JWT / Issuer .-> Booking
+
+    subgraph Databases["MySQL Databases"]
+        UserDB[(User DB)]
+        BookingDB[(Booking DB)]
+        CategoryDB[(Category DB)]
+        PaymentDB[(Payment DB)]
+        SalonDB[(Salon DB)]
+        OfferingDB[(Service Offering DB)]
+    end
+
+    User --> UserDB
+    Booking --> BookingDB
+    Category --> CategoryDB
+    Payment --> PaymentDB
+    Salon --> SalonDB
+    Offering --> OfferingDB
+
 ```
 
 *The diagram represents the intended application integrations. Keycloak and RabbitMQ require separate infrastructure setup; they are not services defined in the current Docker Compose file.*
