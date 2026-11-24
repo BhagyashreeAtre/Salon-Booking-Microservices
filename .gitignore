@@ -1,0 +1,54 @@
+﻿# IntelliJ and IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+.classpath
+.project
+.settings/
+
+# Maven and Java build output
+**/target/
+**/build/
+*.class
+
+# Logs and temporary files
+*.log
+logs/
+testing-logs/
+*.tmp
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+credentials/
+
+# Local application configuration
+application-local.yml
+application-local.yaml
+application-local.properties
+application-dev-local.yml
+application-dev-local.properties
+
+# Docker local overrides
+docker-compose.override.yml
+
+# Operating system
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Generated code archive - contains old credentials
+Salon_Project_Complete_Code.txt
+
+# Backup files
+*.backup
+*.bak
+# Generated Maven and test artifacts
+**/effective-pom
+**/test-result.txt
